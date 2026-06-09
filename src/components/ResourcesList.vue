@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 defineProps<{
   resources: string[];
@@ -7,13 +7,17 @@ defineProps<{
 
 const isOpen = ref(false);
 
+const isIframe = computed(() => {
+  return typeof window !== "undefined" && window.self !== window.top;
+});
+
 function toggleOpen() {
   isOpen.value = !isOpen.value;
 }
 </script>
 
 <template>
-  <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center max-w-sm w-full px-4">
+  <div v-if="!isIframe" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center max-w-sm w-full px-4">
     <!-- Links card container (visible when isOpen is true) -->
     <Transition
       enter-active-class="transition duration-300 ease-out"

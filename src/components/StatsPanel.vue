@@ -6,6 +6,11 @@ let stats: Stats | null = null;
 let frameId: number | null = null;
 
 onMounted(() => {
+  // Prevent initialization if loaded inside an iframe (e.g., as a card preview)
+  if (typeof window !== "undefined" && window.self !== window.top) {
+    return;
+  }
+
   stats = new Stats();
   stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
   stats.dom.style.position = "fixed";

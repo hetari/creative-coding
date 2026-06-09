@@ -9,7 +9,7 @@ defineOptions({
 const router = useRouter();
 
 const iconMap: Record<string, string> = {
-  "01.geometry-lab": "◢",
+  "000-a": "◢",
 };
 
 const isSubCategory = computed(() => {
@@ -20,16 +20,18 @@ const currentCategoryName = computed(() => {
   const path = router.currentRoute.value.path.replace(/\/$/, "");
   if (!path) return "";
   const name = path.split("/").filter(Boolean)[0];
-  return name.replace(/[-_]/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+  return name
+    .replace(/[-_]/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 });
 
 const displayItems = computed(() => {
-  const allRoutes = router.getRoutes().filter(
-    (route) => route.path !== "/" && route.path !== "/:all(.*)"
-  );
-  
+  const allRoutes = router
+    .getRoutes()
+    .filter((route) => route.path !== "/" && route.path !== "/:all(.*)");
+
   const path = router.currentRoute.value.path.replace(/\/$/, ""); // e.g. "" or "/shaders"
-  
+
   // 1. Identify all categories (any first segment of paths with > 1 segments)
   const catNames = new Set<string>();
   for (const route of allRoutes) {
@@ -38,29 +40,34 @@ const displayItems = computed(() => {
       catNames.add(segments[0]);
     }
   }
-  
+
   if (path === "") {
     // ROOT index: Show category cards and top-level pages
     const items: any[] = [];
-    
+
     // Add Category cards
     for (const cat of catNames) {
       items.push({
         name: cat,
         path: `/${cat}`,
-        label: cat.replace(/[-_]/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()),
+        label: cat
+          .replace(/[-_]/g, " ")
+          .replace(/\b\w/g, (char) => char.toUpperCase()),
         icon: "📁",
         isCategory: true,
         previewMode: "image",
       });
     }
-    
+
     // Add Top-level Page cards
     for (const route of allRoutes) {
       const segments = route.path.split("/").filter(Boolean);
       if (segments.length === 1 && !catNames.has(segments[0])) {
         const slug = segments[0];
-        const metaPreviewMode = route.meta?.previewMode as 'image' | 'iframe' | undefined;
+        
+        // Approach A: Root-level pages default to 'image' preview, except '000-a' which uses 'iframe'
+        const previewMode = slug === "000-a" ? "iframe" : "image";
+        
         items.push({
           name: slug,
           path: route.path,
@@ -69,17 +76,17 @@ const displayItems = computed(() => {
             .replace(/\b\w/g, (char) => char.toUpperCase()),
           icon: iconMap[slug] || "◆",
           isCategory: false,
-          previewMode: metaPreviewMode || 'image',
+          previewMode,
         });
       }
     }
-    
+
     return items.sort((a, b) => a.label.localeCompare(b.label));
   } else {
     // Sub-category index: Show pages inside this category folder
     const catName = path.split("/").filter(Boolean)[0]; // e.g. "shaders"
     const items: any[] = [];
-    
+
     for (const route of allRoutes) {
       const segments = route.path.split("/").filter(Boolean);
       // It belongs to this category if segments[0] matches and length > 1
@@ -87,20 +94,25 @@ const displayItems = computed(() => {
         const slug = segments.slice(1).join("-");
         // Don't show the category index itself as a sub-page card
         if (segments[1] === "index") continue;
-        const metaPreviewMode = route.meta?.previewMode as 'image' | 'iframe' | undefined;
+        
+        // Approach A: Nested category pages default to live 'iframe' preview
+        const previewMode = "iframe";
+        
         items.push({
           name: slug,
           path: route.path,
-          label: segments.slice(1).join(" ")
+          label: segments
+            .slice(1)
+            .join(" ")
             .replace(/[-_]/g, " ")
             .replace(/\b\w/g, (char) => char.toUpperCase()),
           icon: iconMap[route.path] || "✦",
           isCategory: false,
-          previewMode: metaPreviewMode || 'image',
+          previewMode,
         });
       }
     }
-    
+
     return items.sort((a, b) => a.label.localeCompare(b.label));
   }
 });
@@ -124,7 +136,6 @@ function handlePreviewError(slug: string) {
     />
 
     <section class="relative mx-auto max-w-7xl px-6 py-14 md:px-10">
-      
       <!-- subcategory breadcrumb back button -->
       <div v-if="isSubCategory" class="mb-10">
         <router-link
@@ -141,16 +152,22 @@ function handlePreviewError(slug: string) {
           class="inline-flex w-fit items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/70 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.22em] text-zinc-500 backdrop-blur"
         >
           <span class="h-2 w-2 rounded-full bg-emerald-400" />
-          {{ isSubCategory ? currentCategoryName : 'Playground' }}
+          {{ isSubCategory ? currentCategoryName : "Playground" }}
         </div>
 
-        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div
+          class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
+        >
           <div class="space-y-3">
             <div class="flex items-end gap-4">
               <h1
                 class="text-4xl font-black tracking-[-0.08em] text-zinc-50 md:text-6xl"
               >
-                {{ isSubCategory ? `${currentCategoryName} Category` : 'Experiments' }}
+                {{
+                  isSubCategory
+                    ? `${currentCategoryName} Category`
+                    : "Experiments"
+                }}
               </h1>
 
               <a
@@ -176,7 +193,11 @@ function handlePreviewError(slug: string) {
             </div>
 
             <p class="max-w-xl text-sm leading-7 text-zinc-500 md:text-base">
-              {{ isSubCategory ? `Browsing all interactive components grouped under ${currentCategoryName}.` : 'Interactive route previews and creative coding shaders following yuri-stream tutorials, live streams, and experiments.' }}
+              {{
+                isSubCategory
+                  ? `Browsing all interactive components grouped under ${currentCategoryName}.`
+                  : "Interactive route previews and creative coding shaders following yuri-stream tutorials, live streams, and experiments."
+              }}
             </p>
           </div>
         </div>
@@ -226,17 +247,19 @@ function handlePreviewError(slug: string) {
           <div class="relative aspect-[16/10] overflow-hidden bg-black">
             <!-- Category folder card -->
             <template v-if="item.isCategory">
-              <div class="flex h-full w-full flex-col items-center justify-center border-t border-zinc-800 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_55%),linear-gradient(180deg,rgba(24,24,27,0.9),rgba(9,9,11,1))] px-6 text-center">
+              <div
+                class="flex h-full w-full flex-col items-center justify-center border-t border-zinc-800 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_55%),linear-gradient(180deg,rgba(24,24,27,0.9),rgba(9,9,11,1))] px-6 text-center"
+              >
                 <div class="space-y-2">
-                  <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-zinc-700 bg-zinc-900/80 text-3xl">
+                  <div
+                    class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-zinc-700 bg-zinc-900/80 text-3xl"
+                  >
                     📁
                   </div>
                   <p class="text-sm font-semibold tracking-wide text-zinc-300">
                     Browse {{ item.label }}
                   </p>
-                  <p class="text-xs text-zinc-500">
-                    Sub-category folder
-                  </p>
+                  <p class="text-xs text-zinc-500">Sub-category folder</p>
                 </div>
               </div>
             </template>
@@ -265,7 +288,9 @@ function handlePreviewError(slug: string) {
                       {{ item.icon }}
                     </div>
 
-                    <p class="text-sm font-semibold tracking-wide text-zinc-100">
+                    <p
+                      class="text-sm font-semibold tracking-wide text-zinc-100"
+                    >
                       {{ item.label }}
                     </p>
 
@@ -283,7 +308,8 @@ function handlePreviewError(slug: string) {
               <template v-else-if="item.previewMode === 'iframe'">
                 <iframe
                   :src="`#${item.path}`"
-                  class="h-full w-full border-0 pointer-events-none"
+                  class="absolute top-0 left-0 border-0 pointer-events-none origin-top-left"
+                  style="width: 400%; height: 400%; transform: scale(0.25);"
                   scrolling="no"
                   loading="lazy"
                 ></iframe>

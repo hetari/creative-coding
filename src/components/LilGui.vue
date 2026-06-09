@@ -19,6 +19,11 @@ const props = defineProps<{
 let gui: GUI | null = null;
 
 onMounted(() => {
+  // Prevent initialization if loaded inside an iframe (e.g., as a card preview)
+  if (typeof window !== "undefined" && window.self !== window.top) {
+    return;
+  }
+
   gui = new GUI({ title: "Parameters" });
   gui.close();
   gui.domElement.style.position = "fixed";

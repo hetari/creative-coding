@@ -9,11 +9,3 @@
     </div>
   </div>
 </template>
-
-<route lang="json">
-{
-  "meta": {
-    "previewMode": "iframe"
-  }
-}
-</route>
