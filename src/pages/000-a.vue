@@ -53,3 +53,11 @@ const referenceLinks = [
     <ResourcesList :resources="referenceLinks" />
   </div>
 </template>
+
+<route lang="json">
+{
+  "meta": {
+    "previewMode": "iframe"
+  }
+}
+</route>

@@ -7,32 +7,36 @@ This workspace is dedicated to reproducing and experimenting with concepts learn
 ## 📺 Active Learning Resources
 
 Our active stream series & primary learning sources:
-*   **First Stream Followed:** [Yuri Artyukh - Creative Coding Live Stream #1](https://www.youtube.com/watch?v=Q1uNf54jjgU&t=71s) — focusing on shader fundamentals, math-driven visual effects, and WebGL setups.
-*   **Repo Topic:** Practicing WebGL, GLSL Shaders, and creative procedural animations.
+
+- **First Stream Followed:** [Yuri Artyukh - Creative Coding Live Stream #1](https://www.youtube.com/watch?v=Q1uNf54jjgU&t=71s) — focusing on shader fundamentals, math-driven visual effects, and WebGL setups.
+- **Repo Topic:** Practicing WebGL, GLSL Shaders, and creative procedural animations.
 
 ---
 
 ## 🛠️ Key Project Features
 
-### 1. Dynamic Categorization & Sub-folders
-The playground dashboard automatically discovers routing paths. Single components live in the root of `src/pages/`, but you can group related creative sketches under dedicated subdirectory folders (e.g., `src/pages/shaders/`).
-*   **Root Dashboard:** Automatically displays nested folders as high-aesthetic **Category Folder Cards** (e.g., *📁 Browse Shaders*).
-*   **Sub-Category Dashboard:** Reuses the landing page layout dynamically, adding back navigations and showcasing only the sketches inside that specific sub-group.
+### 1. Zero-Configuration Sketch Adding
 
-### 2. Page-Level Custom Previews
-Sketches declare their own preferred preview rendering mode directly in their `.vue` files using file-based route blocks.
-*   **Iframe Mode:** Embeds a live interactive `<iframe>` directly onto the card.
-*   **Image Mode:** Uses a fallback static preview screenshot of the sketch.
+Adding new pages and custom experiments is completely automatic!
 
-To specify, add a `<route>` block to the end of your page:
+- To add a new experiment, simply **create a `.vue` file** inside `src/pages/` or any subdirectory.
+- The router automatically discovers your page, labels it nicely on the landing page, and assigns the premium bullet icon (`✦`) automatically.
+- No imports, list registration, icon mapping, or menu updates required!
+
+### 2. Automatic Folder-Based Previews & Categorizations
+
+The playground dashboard automatically maps routes based on directory rules:
+
+- **Top-level pages** (e.g. `src/pages/001-b.vue`): Automatically grouped on the root playground dashboard, defaulting to **Image Preview Mode** (falls back to a text card pointing to drop screenshots in `previews/`).
+- **Subfolders / Categories** (e.g. `src/pages/shaders/`): Any folder you create inside `pages/` automatically turns into a **Category Folder Card** (`📁 Browse [Category]`) on the root dashboard.
+- **Category Sketches** (e.g. `src/pages/shaders/fire.vue`): Instantly discovered and rendered with a high-resolution live **Iframe Preview Mode** when browsing that folder.
+
+#### 💡 Custom Route Previews
+
+If you want to manually override these defaults (for example, force a root-level page like `000-a.vue` to render as a live `iframe`), simply add a `<route>` custom block to the end of your page's `.vue` file:
+
 ```html
-<route lang="json">
-{
-  "meta": {
-    "previewMode": "iframe"
-  }
-}
-</route>
+<route lang="json"> { "meta": { "previewMode": "iframe" } } </route>
 ```
 
 ---
@@ -42,54 +46,52 @@ To specify, add a `<route>` block to the end of your page:
 We have abstracted all auxiliary scene utilities into self-managing, modular components located under `src/components/`.
 
 ### 📊 `StatsPanel.vue`
+
 A renderless wrapper around `stats.js` that tracks real-time performance (FPS, millisecond overhead).
-*   **Auto-mounting:** Spawns a floating panel on the top-right upon page mount.
-*   **Auto-cleaning:** Cleans up frames and removes itself from the document tree on unmount.
+
+- **Auto-mounting:** Spawns a floating panel on the top-right upon page mount.
+- **Iframe-Aware:** Automatically hides itself completely if loaded inside an iframe card preview on the dashboard, keeping previews perfectly clean.
 
 ### 🎛️ `LilGui.vue`
+
 A reactive properties controller wrapper for `lil-gui` to dynamically tune shader variables or model configurations.
-*   **Closed by Default:** Panel is neatly collapsed on load to keep visual scenes clutter-free.
-*   **Ref-Synced:** Directly synchronizes and updates Vue `ref` objects reactively as you drag sliders.
-*   **Usage:**
-    ```html
-    <script setup lang="ts">
-    import { ref } from "vue";
-    import LilGui from "../components/LilGui.vue";
 
-    const scale = ref(1.0);
-    const controls = [
-      { label: "Scale factor", ref: scale, min: 0.1, max: 3.0, step: 0.1 }
-    ];
-    </script>
-
-    <template>
-      <LilGui :controls="controls" />
-    </template>
-    ```
+- **Closed by Default:** Panel is neatly collapsed on load to keep visual scenes clutter-free.
+- **Iframe-Aware:** Instantly detects if running inside card previews and skips initialization.
+- **Ref-Synced:** Directly synchronizes and updates Vue `ref` objects reactively as you drag sliders.
 
 ### 📖 `ResourcesList.vue`
+
 A highly polished bottom-center floating reference button.
-*   **Collapsible UI:** Appears as a sleek, compact action pill (e.g., `📖 References [3] ▲`).
-*   **Popup Over:** Hovering/clicking dynamically slides up a glassmorphic reference panel showing link titles for documentation, assets, or tutorial streams that helped build the page.
+
+- **Collapsible UI:** Appears as a sleek, compact action pill (e.g., `📖 References [3] ▲`).
+- **Iframe-Aware:** Hides itself completely when viewed as a card preview.
+- **Popup Over:** Hovering/clicking dynamically slides up a glassmorphic reference panel showing link titles for documentation, assets, or tutorial streams that helped build the page.
 
 ---
 
 ## 🚀 Getting Started
 
 ### Installation
+
 Make sure you have [Bun](https://bun.sh/) installed:
+
 ```bash
 bun install
 ```
 
 ### Development Server
+
 Run the local live-reload preview server:
+
 ```bash
 bun run dev
 ```
 
 ### Build for Production
+
 Compile, type-check, and optimize static production files:
+
 ```bash
 bun run build
 ```

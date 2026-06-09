@@ -8,10 +8,6 @@ defineOptions({
 
 const router = useRouter();
 
-const iconMap: Record<string, string> = {
-  "000-a": "◢",
-};
-
 const isSubCategory = computed(() => {
   return router.currentRoute.value.path.replace(/\/$/, "") !== "";
 });
@@ -65,8 +61,10 @@ const displayItems = computed(() => {
       if (segments.length === 1 && !catNames.has(segments[0])) {
         const slug = segments[0];
         
-        // Approach A: Root-level pages default to 'image' preview, except '000-a' which uses 'iframe'
-        const previewMode = slug === "000-a" ? "iframe" : "image";
+        // Priority 1: Check dynamic Route Meta.
+        // Priority 2: Fallback to Approach A Folder Conventions ('image' for root level).
+        const metaPreviewMode = route.meta?.previewMode as 'image' | 'iframe' | undefined;
+        const previewMode = metaPreviewMode || "image";
         
         items.push({
           name: slug,
@@ -74,7 +72,7 @@ const displayItems = computed(() => {
           label: slug
             .replace(/[-_]/g, " ")
             .replace(/\b\w/g, (char) => char.toUpperCase()),
-          icon: iconMap[slug] || "◆",
+          icon: "✦",
           isCategory: false,
           previewMode,
         });
@@ -95,8 +93,10 @@ const displayItems = computed(() => {
         // Don't show the category index itself as a sub-page card
         if (segments[1] === "index") continue;
         
-        // Approach A: Nested category pages default to live 'iframe' preview
-        const previewMode = "iframe";
+        // Priority 1: Check dynamic Route Meta.
+        // Priority 2: Fallback to Approach A Folder Conventions ('iframe' for subfolders).
+        const metaPreviewMode = route.meta?.previewMode as 'image' | 'iframe' | undefined;
+        const previewMode = metaPreviewMode || "iframe";
         
         items.push({
           name: slug,
@@ -106,7 +106,7 @@ const displayItems = computed(() => {
             .join(" ")
             .replace(/[-_]/g, " ")
             .replace(/\b\w/g, (char) => char.toUpperCase()),
-          icon: iconMap[route.path] || "✦",
+          icon: "✦",
           isCategory: false,
           previewMode,
         });
