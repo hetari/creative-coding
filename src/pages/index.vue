@@ -1,45 +1,46 @@
 <script setup lang="ts">
-import { computed, reactive } from "vue";
-import { useRouter } from "vue-router";
+import { computed, reactive } from 'vue'
+import { useRouter } from 'vue-router'
 
 defineOptions({
-  name: "IndexPage",
-});
+  name: 'IndexPage',
+})
 
-const router = useRouter();
+const router = useRouter()
 
 const isSubCategory = computed(() => {
-  return router.currentRoute.value.path.replace(/\/$/, "") !== "";
-});
+  return router.currentRoute.value.path.replace(/\/$/, '') !== ''
+})
 
 const currentCategoryName = computed(() => {
-  const path = router.currentRoute.value.path.replace(/\/$/, "");
-  if (!path) return "";
-  const name = path.split("/").filter(Boolean)[0];
+  const path = router.currentRoute.value.path.replace(/\/$/, '')
+  if (!path)
+    return ''
+  const name = path.split('/').filter(Boolean)[0]
   return name
-    .replace(/[-_]/g, " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-});
+    .replace(/[-_]/g, ' ')
+    .replace(/\b\w/g, char => char.toUpperCase())
+})
 
 const displayItems = computed(() => {
   const allRoutes = router
     .getRoutes()
-    .filter((route) => route.path !== "/" && route.path !== "/:all(.*)");
+    .filter(route => route.path !== '/' && route.path !== '/:all(.*)')
 
-  const path = router.currentRoute.value.path.replace(/\/$/, ""); // e.g. "" or "/shaders"
+  const path = router.currentRoute.value.path.replace(/\/$/, '') // e.g. "" or "/shaders"
 
   // 1. Identify all categories (any first segment of paths with > 1 segments)
-  const catNames = new Set<string>();
+  const catNames = new Set<string>()
   for (const route of allRoutes) {
-    const segments = route.path.split("/").filter(Boolean);
+    const segments = route.path.split('/').filter(Boolean)
     if (segments.length > 1) {
-      catNames.add(segments[0]);
+      catNames.add(segments[0])
     }
   }
 
-  if (path === "") {
+  if (path === '') {
     // ROOT index: Show category cards and top-level pages
-    const items: any[] = [];
+    const items: any[] = []
 
     // Add Category cards
     for (const cat of catNames) {
@@ -47,84 +48,86 @@ const displayItems = computed(() => {
         name: cat,
         path: `/${cat}`,
         label: cat
-          .replace(/[-_]/g, " ")
-          .replace(/\b\w/g, (char) => char.toUpperCase()),
-        icon: "📁",
+          .replace(/[-_]/g, ' ')
+          .replace(/\b\w/g, char => char.toUpperCase()),
+        icon: '📁',
         isCategory: true,
-        previewMode: "image",
-      });
+        previewMode: 'image',
+      })
     }
 
     // Add Top-level Page cards
     for (const route of allRoutes) {
-      const segments = route.path.split("/").filter(Boolean);
+      const segments = route.path.split('/').filter(Boolean)
       if (segments.length === 1 && !catNames.has(segments[0])) {
-        const slug = segments[0];
-        
+        const slug = segments[0]
+
         // Priority 1: Check dynamic Route Meta.
         // Priority 2: Fallback to Approach A Folder Conventions ('image' for root level).
-        const metaPreviewMode = route.meta?.previewMode as 'image' | 'iframe' | undefined;
-        const previewMode = metaPreviewMode || "image";
-        
+        const metaPreviewMode = route.meta?.previewMode as 'image' | 'iframe' | undefined
+        const previewMode = metaPreviewMode || 'image'
+
         items.push({
           name: slug,
           path: route.path,
           label: slug
-            .replace(/[-_]/g, " ")
-            .replace(/\b\w/g, (char) => char.toUpperCase()),
-          icon: "✦",
+            .replace(/[-_]/g, ' ')
+            .replace(/\b\w/g, char => char.toUpperCase()),
+          icon: '✦',
           isCategory: false,
           previewMode,
-        });
+        })
       }
     }
 
-    return items.sort((a, b) => a.label.localeCompare(b.label));
-  } else {
+    return items.sort((a, b) => a.label.localeCompare(b.label))
+  }
+  else {
     // Sub-category index: Show pages inside this category folder
-    const catName = path.split("/").filter(Boolean)[0]; // e.g. "shaders"
-    const items: any[] = [];
+    const catName = path.split('/').filter(Boolean)[0] // e.g. "shaders"
+    const items: any[] = []
 
     for (const route of allRoutes) {
-      const segments = route.path.split("/").filter(Boolean);
+      const segments = route.path.split('/').filter(Boolean)
       // It belongs to this category if segments[0] matches and length > 1
       if (segments.length > 1 && segments[0] === catName) {
-        const slug = segments.slice(1).join("-");
+        const slug = segments.slice(1).join('-')
         // Don't show the category index itself as a sub-page card
-        if (segments[1] === "index") continue;
-        
+        if (segments[1] === 'index')
+          continue
+
         // Priority 1: Check dynamic Route Meta.
         // Priority 2: Fallback to Approach A Folder Conventions ('iframe' for subfolders).
-        const metaPreviewMode = route.meta?.previewMode as 'image' | 'iframe' | undefined;
-        const previewMode = metaPreviewMode || "iframe";
-        
+        const metaPreviewMode = route.meta?.previewMode as 'image' | 'iframe' | undefined
+        const previewMode = metaPreviewMode || 'iframe'
+
         items.push({
           name: slug,
           path: route.path,
           label: segments
             .slice(1)
-            .join(" ")
-            .replace(/[-_]/g, " ")
-            .replace(/\b\w/g, (char) => char.toUpperCase()),
-          icon: "✦",
+            .join(' ')
+            .replace(/[-_]/g, ' ')
+            .replace(/\b\w/g, char => char.toUpperCase()),
+          icon: '✦',
           isCategory: false,
           previewMode,
-        });
+        })
       }
     }
 
-    return items.sort((a, b) => a.label.localeCompare(b.label));
+    return items.sort((a, b) => a.label.localeCompare(b.label))
   }
-});
+})
 
 function getPreviewSrc(slug: string) {
-  return `${import.meta.env.BASE_URL}previews/${slug}.png`;
+  return `${import.meta.env.BASE_URL}previews/${slug}.png`
 }
 
-const previewFailed = reactive<Record<string, boolean>>({});
+const previewFailed = reactive<Record<string, boolean>>({})
 
 function handlePreviewError(slug: string) {
-  previewFailed[slug] = true;
+  previewFailed[slug] = true
 }
 </script>
 
@@ -259,7 +262,9 @@ function handlePreviewError(slug: string) {
                   <p class="text-sm font-semibold tracking-wide text-zinc-300">
                     Browse {{ item.label }}
                   </p>
-                  <p class="text-xs text-zinc-500">Sub-category folder</p>
+                  <p class="text-xs text-zinc-500">
+                    Sub-category folder
+                  </p>
                 </div>
               </div>
             </template>
@@ -275,7 +280,7 @@ function handlePreviewError(slug: string) {
                   loading="lazy"
                   class="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.02]"
                   @error="handlePreviewError(item.name)"
-                />
+                >
 
                 <div
                   v-else
@@ -312,7 +317,7 @@ function handlePreviewError(slug: string) {
                   style="width: 400%; height: 400%; transform: scale(0.25);"
                   scrolling="no"
                   loading="lazy"
-                ></iframe>
+                />
               </template>
             </template>
 
