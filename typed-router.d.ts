@@ -38,37 +38,9 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/000-a': RouteRecordInfo<
-      '/000-a',
-      '/000-a',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/001-b': RouteRecordInfo<
-      '/001-b',
-      '/001-b',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/shaders/': RouteRecordInfo<
-      '/shaders/',
-      '/shaders',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/shaders/fire': RouteRecordInfo<
-      '/shaders/fire',
-      '/shaders/fire',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/shaders/water': RouteRecordInfo<
-      '/shaders/water',
-      '/shaders/water',
+    '/math/': RouteRecordInfo<
+      '/math/',
+      '/math',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -94,41 +66,9 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
-    'src/pages/000-a.vue': {
+    'src/pages/math/index.vue': {
       routes:
-        | '/000-a'
-      views:
-        | never
-      pathParamNames:
-        | never
-    }
-    'src/pages/001-b.vue': {
-      routes:
-        | '/001-b'
-      views:
-        | never
-      pathParamNames:
-        | never
-    }
-    'src/pages/shaders/index.vue': {
-      routes:
-        | '/shaders/'
-      views:
-        | never
-      pathParamNames:
-        | never
-    }
-    'src/pages/shaders/fire.vue': {
-      routes:
-        | '/shaders/fire'
-      views:
-        | never
-      pathParamNames:
-        | never
-    }
-    'src/pages/shaders/water.vue': {
-      routes:
-        | '/shaders/water'
+        | '/math/'
       views:
         | never
       pathParamNames:
