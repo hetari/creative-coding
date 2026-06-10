@@ -95,3 +95,26 @@ Compile, type-check, and optimize static production files:
 ```bash
 bun run build
 ```
+
+---
+
+## 🎨 Code Linting & Style
+
+This project implements professional style guidelines configured using **[@antfu/eslint-config](https://github.com/antfu/eslint-config)**.
+
+### Automated Checks (Git Hooks)
+
+- **Husky & nano-staged:** On every `git commit`, our pre-commit hook automatically scans all staged JavaScript, TypeScript, and Vue files.
+- **Auto-fixing:** Staged files are run through `eslint --fix` to auto-format files to maintain clean, beautiful, and consistent quality standards across the workspace.
+- **Commitlint Conventional Commits:** On every commit, our `commit-msg` hook verifies that commit messages follow Conventional Commit guidelines (e.g. `feat: add stats panel`, `fix: hide gui in preview`).
+
+### Manual commands
+
+- **Run Linter:** Check your entire project for style or script issues:
+  ```bash
+  bun run lint
+  ```
+- **Fix Linter:** Automatically resolve all formatting/linter errors:
+  ```bash
+  bun run lint:fix
+  ```

@@ -83,5 +83,5 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <!-- Self-managing properties UI controller (Renderless) -->
+  <div />
 </template>

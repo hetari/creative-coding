@@ -41,5 +41,5 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <!-- Self-managing performance panel (Renderless) -->
+  <div />
 </template>

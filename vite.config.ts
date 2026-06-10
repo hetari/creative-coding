@@ -12,4 +12,8 @@ export default defineConfig({
     vue(templateCompilerOptions),
     tailwindcss(),
   ],
+  optimizeDeps: { include: [
+    'lil-gui',
+    'stats.js',
+  ] },
 })
