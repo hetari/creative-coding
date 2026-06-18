@@ -1,11 +1,23 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { onClickOutside, useMagicKeys } from '@vueuse/core'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 
 defineProps<{
   resources: string[]
 }>()
 
+const resourceRef = useTemplateRef<HTMLDivElement>('resourceRef')
+const { escape } = useMagicKeys()
+
 const isOpen = ref(false)
+
+onClickOutside(resourceRef, () => {
+  isOpen.value = false
+})
+watch([escape], (val) => {
+  if (val && isOpen.value)
+    isOpen.value = false
+})
 
 const isIframe = computed(() => {
   return typeof window !== 'undefined' && window.self !== window.top
@@ -17,7 +29,11 @@ function toggleOpen() {
 </script>
 
 <template>
-  <div v-if="!isIframe" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center max-w-sm w-full px-4">
+  <div
+    v-if="!isIframe"
+    ref="resourceRef"
+    class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center max-w-sm w-full px-4"
+  >
     <!-- Links card container (visible when isOpen is true) -->
     <Transition
       enter-active-class="transition duration-300 ease-out"

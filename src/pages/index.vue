@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { computed, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import ResourcesList from '../components/ResourcesList.vue'
+import Default from '../layouts/default.vue'
 
 defineOptions({
   name: 'IndexPage',
 })
+
+defineProps<{
+  resourcesList?: string[]
+}>()
 
 const router = useRouter()
 
@@ -132,12 +138,7 @@ function handlePreviewError(slug: string) {
 </script>
 
 <template>
-  <main class="min-h-dvh overflow-hidden bg-zinc-950 text-zinc-100">
-    <!-- background -->
-    <div
-      class="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.05),transparent_35%)]"
-    />
-
+  <Default>
     <section class="relative mx-auto max-w-7xl px-6 py-14 md:px-10">
       <!-- subcategory breadcrumb back button -->
       <div v-if="isSubCategory" class="mb-10">
@@ -336,5 +337,7 @@ function handlePreviewError(slug: string) {
         No components found in this section
       </div>
     </section>
-  </main>
+
+    <ResourcesList v-if="resourcesList" :resources="resourcesList" />
+  </Default>
 </template>
