@@ -38,9 +38,16 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/math/': RouteRecordInfo<
-      '/math/',
-      '/math',
+    '/images/': RouteRecordInfo<
+      '/images/',
+      '/images',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/images/swiper': RouteRecordInfo<
+      '/images/swiper',
+      '/images/swiper',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -66,9 +73,17 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
-    'src/pages/math/index.vue': {
+    'src/pages/images/index.vue': {
       routes:
-        | '/math/'
+        | '/images/'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/images/swiper.vue': {
+      routes:
+        | '/images/swiper'
       views:
         | never
       pathParamNames:
