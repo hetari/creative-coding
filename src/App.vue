@@ -4,8 +4,6 @@ import { RouterView } from 'vue-router'
 
 <template>
   <RouterView v-slot="{ Component }">
-    <KeepAlive include="IndexPage">
-      <component :is="Component" />
-    </KeepAlive>
+    <component :is="Component" />
   </RouterView>
 </template>

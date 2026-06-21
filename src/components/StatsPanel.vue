@@ -34,12 +34,16 @@ onMounted(() => {
   })
 
   const tick = () => {
-    for (const stats of statsInstances)
-      stats.update()
+    for (const stats of statsInstances) {
+      const canvas = stats.dom.querySelector('canvas')
+
+      if (canvas && canvas.width && canvas.height) {
+        stats.update()
+      }
+    }
 
     frameId = requestAnimationFrame(tick)
   }
-
   tick()
 })
 

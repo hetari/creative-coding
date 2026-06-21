@@ -1,145 +1,187 @@
 <script setup lang="ts">
-import { tryOnMounted, useEventListener, useWindowSize } from '@vueuse/core'
-import { Application, Assets, Filter, GlProgram, Sprite } from 'pixi.js'
-import { onUnmounted, useTemplateRef, watch } from 'vue'
+import { tryOnMounted, useEventListener, useTemplateRefsList, useWindowSize } from '@vueuse/core'
+import gsap from 'gsap'
+import { Application, Assets, Filter, GlProgram, Sprite, UniformGroup } from 'pixi.js'
+import { onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
 import LilGui from '../../components/LilGui.vue'
 import ResourcesList from '../../components/ResourcesList.vue'
 import StatsPanel from '../../components/StatsPanel.vue'
+
 import Default from '../../layouts/default.vue'
+// Import GLSL shader code as raw text using Vite's "?raw" suffix https://vite.dev/guide/assets#importing-asset-as-string
+import swiperFrag from './swiper.frag?raw'
+import swiperVert from './swiper.vert?raw'
 
 const pixiRef = useTemplateRef<HTMLDivElement>('pixiRef')
+const secRefs = useTemplateRefsList<HTMLElement>()
+const duration = ref(1.0)
+const guiControls = [
+  { label: 'Transition Duration', ref: duration, min: 0.1, max: 5.0, step: 0.1 },
+]
+
 const { height: windowHeight, width: windowWidth } = useWindowSize()
 
 let app: Application | null = null
-let sprite1: Sprite | null = null
+let sprite: Sprite | null = null
+let customFilter: Filter | null = null
+let imageAspect = 1.0
+
+function updatePixiJSLayout() {
+  if (!app || !sprite || !customFilter)
+    return
+
+  // get the current screen width and height
+  const width = windowWidth.value
+  const height = windowHeight.value
+
+  // 1. Resize the PixiJS renderer to match current window size.
+  app.renderer.resize(width, height)
+
+  // 2. Scale the sprite to cover the entire canvas/renderer.
+  sprite.width = width
+  sprite.height = height
+
+  // 3. Recalculate aspect ratio correction (cover behavior).
+  const windowAspect = width / height
+  const targetUniforms = customFilter.resources.aspectUniforms.uniforms
+
+  // Window is wider than the image: scale down Y to crop top/bottom.
+  if (windowAspect > imageAspect) {
+    targetUniforms.uvAspect = { x: 1.0, y: imageAspect / windowAspect }
+  }
+  // Window is taller than the image: scale down X to crop left/right.
+  else {
+    targetUniforms.uvAspect = { x: windowAspect / imageAspect, y: 1.0 }
+  }
+
+  // 4. Calculate dynamic grid divisions and angle based on window width.
+  let gridDivs = 50.0
+  let angle = Math.PI / 4.0
+
+  if (width < 640) {
+    // Small screens (phone) -> 10 slices, smaller angle (Math.PI / 10)
+    gridDivs = 10.0
+    angle = Math.PI / 10.0
+  }
+  else if (width < 1024) {
+    // Medium screens (tablet) -> 25 slices, medium angle (Math.PI / 6)
+    gridDivs = 25.0
+    angle = Math.PI / 6.0
+  }
+
+  // set the GLSL uniforms
+  targetUniforms.uGridDivs = gridDivs
+  targetUniforms.uAngle = angle
+}
 
 async function initApp() {
   if (!pixiRef.value)
     return
 
-  // Destroy existing app if it exists
+  // 1. Memory Cleanup
   if (app) {
     app.destroy(true, {
       children: true,
-      texture: true,
-      textureSource: true,
     })
     app = null
   }
 
-  // Create new app with current window dimensions
+  // 2. Application Instantiation
   app = new Application()
   await app.init({
     width: windowWidth.value,
     height: windowHeight.value,
     backgroundAlpha: 0,
-    resizeTo: pixiRef.value, // This makes PIXI auto-resize to container
   })
-
   pixiRef.value.appendChild(app.canvas)
 
-  Assets.addBundle('gallery', {
-    img1: '/images/2.webp',
-    img2: '/images/3.webp',
-  })
+  // 3. Asset Management
+  if (!Assets.resolver.hasBundle('gallery')) {
+    Assets.addBundle('gallery', {
+      img1: '/images/7.webp',
+      img2: '/images/6.webp',
+      img3: '/images/5.webp',
+    })
+  }
   const assets = await Assets.loadBundle('gallery')
-  sprite1 = new Sprite(assets.img1)
 
-  const customFilter = new Filter({
+  // 4. Custom Filter Creation
+  customFilter = new Filter({
     glProgram: GlProgram.from({
-      vertex: `
-        in vec2 aPosition;
-        out vec2 vTextureCoord;
-        
-        uniform vec4 uInputSize;
-        uniform vec4 uOutputFrame;
-        uniform vec4 uOutputTexture;
-
-        vec4 filterVertexPosition( void ) {
-            // 1. Scale and Offset local coordinates to Match Object Frame
-            vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
-        
-            // 2. Convert X coordinate from pixels to Clip Space (-1 to 1)
-            position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
-            
-            // 3. Convert Y coordinate from pixels to Clip Space (-1 to 1)
-            position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
-            
-            return vec4(position, 0.0, 1.0);
-        }
-
-        vec2 filterTextureCoord( void ) {
-            return aPosition * (uOutputFrame.zw * uInputSize.zw);
-        }
-
-        void main(void) {
-            gl_Position = filterVertexPosition();
-            vTextureCoord = filterTextureCoord();
-        }
-      `,
-      fragment: `
-        precision highp float;
-        varying vec2 vTextureCoord;
-        uniform sampler2D uTexture;
-
-        void main() {
-          // 1. Calculate the distorted texture coordinates
-          vec2 uv = vec2(vTextureCoord.x + sin(vTextureCoord.y * 10.0) / 10., vTextureCoord.y);
-
-          gl_FragColor = texture2D(uTexture, uv);
-        }
-      `,
+      vertex: swiperVert,
+      fragment: swiperFrag,
     }),
     resources: {
-      uTexture: assets.img2,
+      uTextureOne: assets.img1.source,
+      uTextureTow: assets.img2.source,
+      aspectUniforms: new UniformGroup({
+        uvAspect: { value: { x: 1.0, y: 1.0 }, type: 'vec2<f32>' },
+        uTime: { value: 0.0, type: 'f32' },
+        uProgress: { value: 0.0, type: 'f32' },
+        uGridDivs: { value: 50.0, type: 'f32' },
+        uAngle: { value: Math.PI / 4.0, type: 'f32' },
+      }),
     },
   })
 
-  sprite1.anchor.set(0.5)
-  sprite1.position.set(
-    app.screen.width / 2,
-    app.screen.height / 2,
-  )
-  sprite1.filters = [customFilter]
+  imageAspect = assets.img1.width / assets.img1.height
 
-  app.stage.addChild(sprite1)
+  // 6. Build the Sprite & Apply Shader Filter
+  sprite = new Sprite(assets.img1)
+  sprite.filters = [customFilter]
+
+  app.stage.addChild(sprite)
+
+  // 7. Update dimensions, sprite sizing, and aspect ratio correction uniforms.
+  updatePixiJSLayout()
+
+  // 8. Handle Swiping Interaction Animation with Gsap
+  const targetUniforms = customFilter.resources.aspectUniforms.uniforms
+  let activeIndex = 0
+  secRefs.value.forEach((sec, index) => {
+    // mouseenter event listener for each section
+    useEventListener(sec, 'mouseenter', () => {
+      if (activeIndex === index)
+        return
+
+      activeIndex = index
+
+      if (customFilter) {
+        const currentProgress = targetUniforms.uProgress
+        // eslint-disable-next-line no-console
+        console.log('[currentProgress]:', currentProgress)
+        // eslint-disable-next-line no-console
+        console.log('[index]:', index)
+
+        if (currentProgress >= 0.5) {
+          customFilter.resources.uTextureOne = customFilter.resources.uTextureTow
+          targetUniforms.uProgress = 1 - currentProgress
+        }
+        customFilter.resources.uTextureTow = assets[`img${index + 1}`].source
+
+        gsap.killTweensOf(targetUniforms)
+        gsap.to(targetUniforms, {
+          uProgress: 1,
+          duration: duration.value,
+          ease: 'power3.out',
+        })
+      }
+    })
+  })
 }
 
-// Handle window resize
 watch([windowWidth, windowHeight], () => {
-  if (app && sprite1) {
-    // Resize the renderer
-    app.renderer.resize(windowWidth.value, windowHeight.value)
-
-    // Update sprite position
-    sprite1.position.set(
-      app.screen.width / 2,
-      app.screen.height / 2,
-    )
-  }
-})
-
-// Alternative approach using event listener (choose one method)
-useEventListener('resize', () => {
-  if (app && sprite1) {
-    app.renderer.resize(windowWidth.value, windowHeight.value)
-    sprite1.position.set(
-      app.screen.width / 2,
-      app.screen.height / 2,
-    )
-  }
+  updatePixiJSLayout()
 })
 
 tryOnMounted(async () => {
   await initApp()
 })
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   if (app) {
     app.destroy(true, {
       children: true,
-      texture: true,
-      textureSource: true,
     })
     app = null
   }
@@ -149,8 +191,17 @@ onUnmounted(() => {
 <template>
   <Default>
     <div ref="pixiRef" />
+    <div class="fixed inset-0 w-screen h-screen flex">
+      <p
+        v-for="num in [1, 2, 3]"
+        :ref="secRefs.set"
+        :key="num"
+        class="block h-full w-1/3"
+      />
+    </div>
+
     <StatsPanel />
-    <LilGui :controls="[]" />
+    <LilGui :controls="guiControls" />
     <ResourcesList
       :resources="[
         'https://www.youtube.com/watch?v=Q1uNf54jjgU',
