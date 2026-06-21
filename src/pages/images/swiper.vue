@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { tryOnMounted, useEventListener, useTemplateRefsList, useWindowSize } from '@vueuse/core'
 import gsap from 'gsap'
-import { Application, Assets, Filter, GlProgram, Sprite, UniformGroup } from 'pixi.js'
-import { onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
+import { Assets, Filter, GlProgram, Sprite, UniformGroup } from 'pixi.js'
+import { ref, useTemplateRef, watch } from 'vue'
 import LilGui from '../../components/LilGui.vue'
 import ResourcesList from '../../components/ResourcesList.vue'
 import StatsPanel from '../../components/StatsPanel.vue'
-
+import { usePixiApp } from '../../composables/usePixiApp'
 import Default from '../../layouts/default.vue'
 // Import GLSL shader code as raw text using Vite's "?raw" suffix https://vite.dev/guide/assets#importing-asset-as-string
 import swiperFrag from './swiper.frag?raw'
@@ -21,13 +21,13 @@ const guiControls = [
 
 const { height: windowHeight, width: windowWidth } = useWindowSize()
 
-let app: Application | null = null
+const { app, mountApp } = usePixiApp(pixiRef)
 let sprite: Sprite | null = null
 let customFilter: Filter | null = null
 let imageAspect = 1.0
 
 function updatePixiJSLayout() {
-  if (!app || !sprite || !customFilter)
+  if (!app.value || !sprite || !customFilter)
     return
 
   // get the current screen width and height
@@ -35,7 +35,7 @@ function updatePixiJSLayout() {
   const height = windowHeight.value
 
   // 1. Resize the PixiJS renderer to match current window size.
-  app.renderer.resize(width, height)
+  app.value.renderer.resize(width, height)
 
   // 2. Scale the sprite to cover the entire canvas/renderer.
   sprite.width = width
@@ -75,25 +75,15 @@ function updatePixiJSLayout() {
 }
 
 async function initApp() {
-  if (!pixiRef.value)
-    return
-
-  // 1. Memory Cleanup
-  if (app) {
-    app.destroy(true, {
-      children: true,
-    })
-    app = null
-  }
-
-  // 2. Application Instantiation
-  app = new Application()
-  await app.init({
+  // mountApp handles: cleanup of any previous instance, create, init, canvas append.
+  // Teardown on unmount is also registered inside usePixiApp.
+  await mountApp({
     width: windowWidth.value,
     height: windowHeight.value,
     backgroundAlpha: 0,
   })
-  pixiRef.value.appendChild(app.canvas)
+  if (!app.value)
+    return
 
   // 3. Asset Management
   if (!Assets.resolver.hasBundle('gallery')) {
@@ -130,7 +120,7 @@ async function initApp() {
   sprite = new Sprite(assets.img1)
   sprite.filters = [customFilter]
 
-  app.stage.addChild(sprite)
+  app.value.stage.addChild(sprite)
 
   // 7. Update dimensions, sprite sizing, and aspect ratio correction uniforms.
   updatePixiJSLayout()
@@ -176,15 +166,6 @@ watch([windowWidth, windowHeight], () => {
 
 tryOnMounted(async () => {
   await initApp()
-})
-
-onBeforeUnmount(() => {
-  if (app) {
-    app.destroy(true, {
-      children: true,
-    })
-    app = null
-  }
 })
 </script>
 

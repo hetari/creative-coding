@@ -3,6 +3,8 @@ import { computed, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import ResourcesList from '../components/ResourcesList.vue'
 import Default from '../layouts/default.vue'
+import { buildDashboardItems } from '../utils/dashboard'
+import { slugToLabel } from '../utils/slug'
 
 defineOptions({
   name: 'IndexPage',
@@ -23,108 +25,15 @@ const currentCategoryName = computed(() => {
   if (!path)
     return ''
   const name = path.split('/').filter(Boolean)[0]
-  return name
-    .replace(/[-_]/g, ' ')
-    .replace(/\b\w/g, char => char.toUpperCase())
+  return slugToLabel(name)
 })
 
-const displayItems = computed(() => {
-  const allRoutes = router
-    .getRoutes()
-    .filter(route => route.path !== '/' && route.path !== '/:all(.*)')
-
-  const path = router.currentRoute.value.path.replace(/\/$/, '') // e.g. "" or "/shaders"
-
-  // 1. Identify all categories (any first segment of paths with > 1 segments)
-  const catNames = new Set<string>()
-  for (const route of allRoutes) {
-    const segments = route.path.split('/').filter(Boolean)
-    if (segments.length > 1) {
-      catNames.add(segments[0])
-    }
-  }
-
-  if (path === '') {
-    // ROOT index: Show category cards and top-level pages
-    const items: any[] = []
-
-    // Add Category cards
-    for (const cat of catNames) {
-      items.push({
-        name: cat,
-        path: `/${cat}`,
-        label: cat
-          .replace(/[-_]/g, ' ')
-          .replace(/\b\w/g, char => char.toUpperCase()),
-        icon: '📁',
-        isCategory: true,
-        previewMode: 'image',
-      })
-    }
-
-    // Add Top-level Page cards
-    for (const route of allRoutes) {
-      const segments = route.path.split('/').filter(Boolean)
-      if (segments.length === 1 && !catNames.has(segments[0])) {
-        const slug = segments[0]
-
-        // Priority 1: Check dynamic Route Meta.
-        // Priority 2: Fallback to Approach A Folder Conventions ('image' for root level).
-        const metaPreviewMode = route.meta?.previewMode as 'image' | 'iframe' | undefined
-        const previewMode = metaPreviewMode || 'image'
-
-        items.push({
-          name: slug,
-          path: route.path,
-          label: slug
-            .replace(/[-_]/g, ' ')
-            .replace(/\b\w/g, char => char.toUpperCase()),
-          icon: '✦',
-          isCategory: false,
-          previewMode,
-        })
-      }
-    }
-
-    return items.sort((a, b) => a.label.localeCompare(b.label))
-  }
-  else {
-    // Sub-category index: Show pages inside this category folder
-    const catName = path.split('/').filter(Boolean)[0] // e.g. "shaders"
-    const items: any[] = []
-
-    for (const route of allRoutes) {
-      const segments = route.path.split('/').filter(Boolean)
-      // It belongs to this category if segments[0] matches and length > 1
-      if (segments.length > 1 && segments[0] === catName) {
-        const slug = segments.slice(1).join('-')
-        // Don't show the category index itself as a sub-page card
-        if (segments[1] === 'index')
-          continue
-
-        // Priority 1: Check dynamic Route Meta.
-        // Priority 2: Fallback to Approach A Folder Conventions ('iframe' for subfolders).
-        const metaPreviewMode = route.meta?.previewMode as 'image' | 'iframe' | undefined
-        const previewMode = metaPreviewMode || 'iframe'
-
-        items.push({
-          name: slug,
-          path: route.path,
-          label: segments
-            .slice(1)
-            .join(' ')
-            .replace(/[-_]/g, ' ')
-            .replace(/\b\w/g, char => char.toUpperCase()),
-          icon: '✦',
-          isCategory: false,
-          previewMode,
-        })
-      }
-    }
-
-    return items.sort((a, b) => a.label.localeCompare(b.label))
-  }
-})
+const displayItems = computed(() =>
+  buildDashboardItems(
+    router.getRoutes(),
+    router.currentRoute.value.path.replace(/\/$/, ''),
+  ),
+)
 
 function getPreviewSrc(slug: string) {
   return `${import.meta.env.BASE_URL}previews/${slug}.png`
