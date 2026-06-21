@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import GUI from 'lil-gui'
 import { onMounted, onUnmounted, watch } from 'vue'
+import { useIsPreview } from '../composables/useIsPreview'
+
+const props = defineProps<{
+  controls: GuiControl[]
+}>()
+
+const isPreview = useIsPreview()
 
 interface GuiControl {
   label: string
@@ -12,15 +19,11 @@ interface GuiControl {
   onChange?: (val: any) => void
 }
 
-const props = defineProps<{
-  controls: GuiControl[]
-}>()
-
 let gui: GUI | null = null
 
 onMounted(() => {
   // Prevent initialization if loaded inside an iframe (e.g., as a card preview)
-  if (typeof window !== 'undefined' && window.self !== window.top) {
+  if (isPreview.value) {
     return
   }
 

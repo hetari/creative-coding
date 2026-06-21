@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onClickOutside, useMagicKeys } from '@vueuse/core'
-import { computed, ref, useTemplateRef, watch } from 'vue'
+import { ref, useTemplateRef, watch } from 'vue'
+import { useIsPreview } from '../composables/useIsPreview'
 
 defineProps<{
   resources: string[]
@@ -19,9 +20,7 @@ watch([escape], (val) => {
     isOpen.value = false
 })
 
-const isIframe = computed(() => {
-  return typeof window !== 'undefined' && window.self !== window.top
-})
+const isIframe = useIsPreview()
 
 function toggleOpen() {
   isOpen.value = !isOpen.value

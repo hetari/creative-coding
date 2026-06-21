@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import Stats from 'stats.js'
 import { onMounted, onUnmounted } from 'vue'
+import { useIsPreview } from '../composables/useIsPreview'
+
+const isPreview = useIsPreview()
 
 const statsInstances: Stats[] = []
 let frameId: number | null = null
 
 onMounted(() => {
-  if (typeof window !== 'undefined' && window.self !== window.top)
+  if (isPreview.value)
     return
 
   const panels = [
