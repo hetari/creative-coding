@@ -14,7 +14,7 @@ import swiperVert from './swiper.vert?raw'
 
 const pixiRef = useTemplateRef<HTMLDivElement>('pixiRef')
 const secRefs = useTemplateRefsList<HTMLElement>()
-const duration = ref(1.0)
+const duration = ref(0.5)
 const guiControls = [
   { label: 'Transition Duration', ref: duration, min: 0.1, max: 5.0, step: 0.1 },
 ]
@@ -151,7 +151,7 @@ async function initApp() {
 
         gsap.killTweensOf(targetUniforms)
         gsap.to(targetUniforms, {
-          uProgress: 0.5,
+          uProgress: 1,
           duration: duration.value,
           ease: 'power3.out',
         })
