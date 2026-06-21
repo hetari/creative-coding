@@ -1,3 +1,4 @@
+import { fileURLToPath, URL } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import { templateCompilerOptions } from '@tresjs/core'
 import vue from '@vitejs/plugin-vue'
@@ -12,6 +13,11 @@ export default defineConfig({
     vue(templateCompilerOptions),
     tailwindcss(),
   ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
   optimizeDeps: { include: [
     'lil-gui',
     'stats.js',

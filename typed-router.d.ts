@@ -45,8 +45,8 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/images/swiper': RouteRecordInfo<
-      '/images/swiper',
+    '/images/swiper/': RouteRecordInfo<
+      '/images/swiper/',
       '/images/swiper',
       Record<never, never>,
       Record<never, never>,
@@ -81,9 +81,9 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
-    'src/pages/images/swiper.vue': {
+    'src/pages/images/swiper/index.vue': {
       routes:
-        | '/images/swiper'
+        | '/images/swiper/'
       views:
         | never
       pathParamNames:

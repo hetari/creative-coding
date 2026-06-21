@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onClickOutside, useMagicKeys } from '@vueuse/core'
 import { ref, useTemplateRef, watch } from 'vue'
-import { useIsPreview } from '../composables/useIsPreview'
+import { useIsPreview } from '@/composables/useIsPreview'
 
 defineProps<{
   resources: string[]

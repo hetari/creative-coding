@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import ResourcesList from '../components/ResourcesList.vue'
-import Default from '../layouts/default.vue'
-import { buildDashboardItems } from '../utils/dashboard'
-import { slugToLabel } from '../utils/slug'
+import ResourcesList from '@/components/ResourcesList.vue'
+import Default from '@/layouts/default.vue'
+import { buildDashboardItems } from '@/utils/dashboard'
+import { slugToLabel } from '@/utils/slug'
 
 defineOptions({
   name: 'IndexPage',

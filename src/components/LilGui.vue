@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import GUI from 'lil-gui'
 import { onMounted, onUnmounted, watch } from 'vue'
-import { useIsPreview } from '../composables/useIsPreview'
+import { useIsPreview } from '@/composables/useIsPreview'
 
 const props = defineProps<{
   controls: GuiControl[]

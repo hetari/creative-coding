@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Stats from 'stats.js'
 import { onMounted, onUnmounted } from 'vue'
-import { useIsPreview } from '../composables/useIsPreview'
+import { useIsPreview } from '@/composables/useIsPreview'
 
 const isPreview = useIsPreview()
 
