@@ -151,7 +151,7 @@ async function initApp() {
 
         gsap.killTweensOf(targetUniforms)
         gsap.to(targetUniforms, {
-          uProgress: 1,
+          uProgress: 0.5,
           duration: duration.value,
           ease: 'power3.out',
         })
