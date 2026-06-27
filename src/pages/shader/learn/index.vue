@@ -27,6 +27,7 @@ tryOnMounted(() => {
       p.shader(myShader)
       myShader.setUniform('uTime', p.millis() / 2000.0)
       myShader.setUniform('uResolution', [p.width, p.height])
+      myShader.setUniform('PI', Math.PI)
       p.rect(-p.width / 2, -p.height / 2, p.width, p.height)
       // p.ellipse(0, 0, p.width, p.height, 100)
     }
@@ -40,7 +41,7 @@ tryOnMounted(() => {
 
 <template>
   <Default>
-    <!-- https://www.youtube.com/watch?v=q1xzpZu1KTc, https://www.youtube.com/watch?v=345Okku4qBA -->
+    <!-- https://www.youtube.com/watch?v=q1xzpZu1KTc, https://www.youtube.com/watch?v=345Okku4qBA, https://www.youtube.com/watch?v=n7No2HiUUGc, https://www.youtube.com/watch?v=zSmNeJEom7s -->
     <div ref="container" class="fixed inset-0 size-full overflow-hidden [&>canvas]:block" />
   </Default>
 </template>
