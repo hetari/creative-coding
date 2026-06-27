@@ -52,6 +52,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/shader/': RouteRecordInfo<
+      '/shader/',
+      '/shader',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/shader/learn/': RouteRecordInfo<
+      '/shader/learn/',
+      '/shader/learn',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -84,6 +98,22 @@ declare module 'vue-router/auto-routes' {
     'src/pages/images/swiper/index.vue': {
       routes:
         | '/images/swiper/'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/shader/index.vue': {
+      routes:
+        | '/shader/'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/shader/learn/index.vue': {
+      routes:
+        | '/shader/learn/'
       views:
         | never
       pathParamNames:

@@ -1,15 +1,15 @@
-# yuri-stream Practice & Playground
+# Creative Coding Playground
 
-A structured, high-performance creative coding playground built with **Vue 3**, **Vite**, **TypeScript**, and **Three.js** / **TresJS** to practice and implement advanced shader/WebGL techniques.
+A structured, high-performance creative coding playground built with **Vue 3**, **Vite**, **TypeScript**, and libraries like **PixiJS**, **p5.js**, **Three.js / TresJS**, and **GLSL shaders**.
 
-This workspace is dedicated to reproducing and experimenting with concepts learned during creative coding live streams—specifically following the teaching videos of **Yuri Artyukh** (Yuri Stream).
+This workspace is for reproducing, experimenting with, and learning from concepts picked up across creative coding tutorials, live streams, and personal experiments — not limited to any single source.
 
-## 📺 Active Learning Resources
+## 📺 Learning Resources & Inspirations
 
-Our active stream series & primary learning sources:
+This playground grows organically as new tutorials and techniques are explored:
 
-- **First Stream Followed:** [Yuri Artyukh - Creative Coding Live Stream #1](https://www.youtube.com/watch?v=Q1uNf54jjgU&t=71s) — focusing on shader fundamentals, math-driven visual effects, and WebGL setups.
-- **Repo Topic:** Practicing WebGL, GLSL Shaders, and creative procedural animations.
+- **Yuri Artyukh (Yuri Stream)** — shader fundamentals, math-driven visual effects, WebGL setups ([first stream followed](https://www.youtube.com/watch?v=Q1uNf54jjgU&t=71s))
+- **Any tutorial, stream, or experiment** — if it involves creative code, it belongs here
 
 ---
 
@@ -33,11 +33,30 @@ The playground dashboard automatically maps routes based on directory rules:
 
 #### 💡 Custom Route Previews
 
-If you want to manually override these defaults (for example, force a root-level page like `000-a.vue` to render as a live `iframe`), simply add a `<route>` custom block to the end of your page's `.vue` file:
+Sub-category pages default to `iframe` previews and root-level pages default to `image` previews. To override either direction, add a `<route>` custom block to your `.vue` file:
 
 ```html
+<!-- Force a page to use an iframe live preview -->
 <route lang="json"> { "meta": { "previewMode": "iframe" } } </route>
+
+<!-- Force a sub-category page to use a static image preview -->
+<route lang="json"> { "meta": { "previewMode": "image" } } </route>
 ```
+
+### 3. Composable-Based Sketch Architecture
+
+Each rendering library gets its own lifecycle composable under `src/composables/`:
+
+| Composable   | Library | Pattern                            |
+| ------------ | ------- | ---------------------------------- |
+| `usePixiApp` | PixiJS  | `mountApp(options)` → `app.value`  |
+| `useP5`      | p5.js   | `mountSketch(sketch)` → `p5.value` |
+
+All composables share the same design:
+
+- Dynamic import of the library (lazy, tree-shaking friendly)
+- Hot-reload safe (tears down + recreates on re-mount)
+- Consistent `tryOnUnmounted` teardown
 
 ---
 

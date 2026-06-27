@@ -1,7 +1,7 @@
-import type { ApplicationOptions } from 'pixi.js'
+import type { Application, ApplicationOptions } from 'pixi.js'
 import type { ShallowRef, TemplateRef } from 'vue'
-import { Application } from 'pixi.js'
-import { onUnmounted, shallowRef } from 'vue'
+import { tryOnUnmounted } from '@vueuse/core'
+import { shallowRef } from 'vue'
 
 /**
  * Manages the PixiJS Application lifecycle for a sketch component.
@@ -46,14 +46,15 @@ export function usePixiApp(
       app.value = null
     }
 
+    const { Application } = await import('pixi.js')
     const instance = new Application()
     await instance.init(options)
     containerRef.value.appendChild(instance.canvas)
     app.value = instance
   }
 
-  // Single, consistent teardown — always onUnmounted (not onBeforeUnmount)
-  onUnmounted(() => {
+  // Single, consistent teardown — tryOnUnmounted for SSR safety
+  tryOnUnmounted(() => {
     if (app.value) {
       app.value.destroy(true, { children: true })
       app.value = null
