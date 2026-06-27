@@ -85,7 +85,7 @@ function handlePreviewError(slug: string) {
 
               <a
                 v-if="!isSubCategory"
-                href="https://github.com/hetari/yuri-stream"
+                href="https://github.com/hetari/creative-coding"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900/70 text-zinc-500 transition-all duration-300 hover:-translate-y-0.5 hover:border-zinc-600 hover:text-zinc-100 hover:shadow-lg hover:shadow-zinc-900/50"
