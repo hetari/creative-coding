@@ -7,6 +7,13 @@ uniform float uTime;
 uniform vec2 uResolution;
 uniform float PI;
 
+// GUI-controlled uniforms
+uniform float uSpeed;
+uniform float uGlow;
+uniform vec3 uPaletteA;
+uniform vec3 uPaletteB;
+uniform vec3 uPaletteD;
+
 float heart(vec2 p) {
   p.y -= 0.25;
   float a = atan(p.x, p.y) / 3.14159;
@@ -17,11 +24,8 @@ float heart(vec2 p) {
 }
 
 vec3 palette(float t) {
-  vec3 a = vec3(0.5, 0.2, 0.2);
-  vec3 b = vec3(0.5, 0.3, 0.3);
   vec3 c = vec3(1.0, 1.0, 1.0);
-  vec3 d = vec3(0.0, 0.1, 0.2);
-  return a + b * cos(6.28318 * (c * t + d));
+  return uPaletteA + uPaletteB * cos(6.28318 * (c * t + uPaletteD));
 }
 
 void main() {
@@ -31,18 +35,15 @@ void main() {
   // of -0.5 to 0.5
   vec2 uv = (gl_FragCoord.xy * 2.0 - uResolution.xy) / uResolution.y;
 
-  for (float i = 0.0; i < 2.0; i++) {
+  vec3 color = palette(heart(uv) + uTime * uSpeed);
 
-    vec3 color = palette(heart(uv) + uTime);
+  uv = fract(uv * 2.0);
+  uv -= 0.5;
 
-    uv = fract(uv * 2.0);
-    uv -= 0.5;
+  float d = heart(uv);
+  d = sin(d * PI * 2.0);
+  d = abs(d);
+  d = uGlow / d;
 
-    float d = heart(uv);
-    d = sin(d * PI * 2.0);
-    d = abs(d);
-    d = 0.25 / d;
-
-    fragColor = vec4(color * d, 1.0);
-  }
+  fragColor = vec4(color * d, 1.0);
 }

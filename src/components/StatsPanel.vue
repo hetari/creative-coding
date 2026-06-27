@@ -13,12 +13,12 @@ onMounted(() => {
     return
 
   const panels = [
-    { panel: 0, top: '10px', right: '10px' }, // FPS
-    { panel: 1, top: '10px', right: '92.5px' }, // MS
-    { panel: 2, top: '10px', right: '175px' }, // MB
+    { panel: 0, top: '10px', left: '10px' }, // FPS
+    { panel: 1, top: '10px', left: '92.5px' }, // MS
+    { panel: 2, top: '10px', left: '175px' }, // MB
   ]
 
-  panels.forEach(({ panel, top, right }) => {
+  panels.forEach(({ panel, top, left }) => {
     const stats = new Stats()
 
     stats.showPanel(panel)
@@ -26,8 +26,8 @@ onMounted(() => {
     Object.assign(stats.dom.style, {
       position: 'fixed',
       top,
-      right,
-      left: 'auto',
+      left,
+      right: 'auto',
       zIndex: '99999',
       pointerEvents: 'none',
     })

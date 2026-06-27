@@ -12,6 +12,7 @@ const isPreview = useIsPreview()
 interface GuiControl {
   label: string
   ref: any // A Vue ref or direct primitive wrapper
+  type?: 'color' // When set to 'color', renders a color picker via gui.addColor()
   min?: number
   max?: number
   step?: number
@@ -31,8 +32,8 @@ onMounted(() => {
   gui.close()
   gui.domElement.style.position = 'fixed'
   gui.domElement.style.top = '60px' // Positioned cleanly below the Stats panel
-  gui.domElement.style.right = '10px'
-  gui.domElement.style.left = 'auto'
+  gui.domElement.style.right = 'auto'
+  gui.domElement.style.left = '10px'
   gui.domElement.style.zIndex = '9999'
 
   const target: Record<string, any> = {}
@@ -45,7 +46,10 @@ onMounted(() => {
     target[key] = isRef ? control.ref.value : control.ref
 
     let controller
-    if (control.options) {
+    if (control.type === 'color') {
+      controller = gui!.addColor(target, key)
+    }
+    else if (control.options) {
       controller = gui!.add(target, key, control.options)
     }
     else {

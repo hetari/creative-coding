@@ -59,9 +59,9 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/shader/learn/': RouteRecordInfo<
-      '/shader/learn/',
-      '/shader/learn',
+    '/shader/000-learn/': RouteRecordInfo<
+      '/shader/000-learn/',
+      '/shader/000-learn',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -111,9 +111,9 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
-    'src/pages/shader/learn/index.vue': {
+    'src/pages/shader/000-learn/index.vue': {
       routes:
-        | '/shader/learn/'
+        | '/shader/000-learn/'
       views:
         | never
       pathParamNames:
